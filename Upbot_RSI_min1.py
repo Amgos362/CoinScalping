@@ -48,7 +48,7 @@ def sell(coin):
     cur_price = pyupbit.get_current_price(coin)
     total = scam * cur_price
     if total > 5000:
-        upbit.sell_market_order(coin, scam)
+        upbit.sell_market_order(coin, scam * 0.9995)
     return
 
 
