@@ -44,7 +44,7 @@ def buy(coin):
     return
 
 def sell(coin):
-    scam = get_balance(coin)
+    scam = upbit.get_balance(coin)
     cur_price = pyupbit.get_current_price(coin)
     total = scam * cur_price
     if total > 5000:
@@ -58,14 +58,14 @@ while True:
         df = pyupbit.get_ohlcv(ticker=coinlist[i], interval="minute1")    # RSI(N) 계산 / 데이터 200개 조회
         now_rsi = rsi(df, 14).iloc[-1]
  
-        if now_rsi < 30:
+        if now_rsi < 28:
             lower30[i] = True
-        elif now_rsi > 30 and lower30[i] == True:
+        elif now_rsi > 33 and lower30[i] == True:
             buy(coinlist[i])
             lower30[i] = False
-        elif now_rsi > 65:
+        elif now_rsi > 68:
             higher65[i] = True
-        elif now_rsi < 65 and higher65[i] == True:
+        elif now_rsi < 62 and higher65[i] == True:
             sell(coinlist[i])
             higher65[i] = False
     
