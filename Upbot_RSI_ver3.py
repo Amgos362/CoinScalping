@@ -7,7 +7,6 @@ secret = "secret"
 coins = ["KRW-ETH", "KRW-ETC"]
 lower30 = []
 higher65 = []
-coin_bought = 0
 
 for i in range(len(coins)):
     lower30.append(False)
@@ -31,8 +30,9 @@ def rsi(ohlc: pd.DataFrame, period: int = 14):
 
 def buy(coin):
     krw = upbit.get_balance("KRW")
+    coin_bought = len(upbit.get_balances())
     if krw > 5000:
-            upbit.buy_market_order(coin, krw * 0.9995 / (len(coins) - coin_bought))
+            upbit.buy_market_order(coin, krw * 0.9995 / len(coins) - coin_bought + 1)
     return
 
 def sell(coin):
@@ -66,13 +66,11 @@ while True:
                 lower30[i] = True
             elif now_rsi > 33 and lower30[i] == True:
                 buy(coins[i])
-                coin_bought += 1
                 lower30[i] = False
             elif now_rsi > 72:
                 higher65[i] = True
             elif now_rsi < 66 and higher65[i] == True:
                 sell(coins[i])
-                coin_bought -= 1
                 higher65[i] = False
 
         else:
@@ -80,20 +78,17 @@ while True:
                 lower30[i] = True
             elif now_rsi > 29 and lower30[i] == True:
                 buy(coins[i])
-                coin_bought += 1
                 lower30[i] = False
             elif now_rsi > 67:
                 higher65[i] = True
             elif now_rsi < 62 and higher65[i] == True:
                 sell(coins[i])
-                coin_bought -= 1
                 higher65[i] = False
 
         if upbit.get_avg_buy_price(coins[i]) > 0:
             if cur_price / upbit.get_avg_buy_price(coins[i]) < 0.995:
                 sell(coins[i])
-                coin_bought -= 1
-                
+
     time.sleep(0.5)
 
 
