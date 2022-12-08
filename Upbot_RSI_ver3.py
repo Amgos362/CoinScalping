@@ -86,8 +86,8 @@ while True:
                 sell(coins[i])
                 higher65[i] = False
 
-            if upbit.get_avg_buy_price(coins[i]) / cur_price > 1.005:
-                sell(coins[i])
+        if upbit.get_avg_buy_price(coins[i]) / cur_price > 1.005:
+            sell(coins[i])
 
     time.sleep(0.5)
 
