@@ -31,7 +31,8 @@ def rsi(ohlc: pd.DataFrame, period: int = 14):
 def buy(coin):
     krw = upbit.get_balance("KRW")
     coin_bought = len(upbit.get_balances())
-    if krw > 5000:
+    if coin_bought < 3:
+        if krw > 5000:
             upbit.buy_market_order(coin, krw * 0.9995 / (len(coins) - coin_bought + 1))
     return
 
