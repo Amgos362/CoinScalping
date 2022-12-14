@@ -89,5 +89,8 @@ while True:
 
         if avg_buy_price / cur_price > 1.01:
             sell(coins[i])
+            
+        elif avg_buy_price / cur_price < 0.9975:
+            sell(coins[i])
 
     time.sleep(0.5)
