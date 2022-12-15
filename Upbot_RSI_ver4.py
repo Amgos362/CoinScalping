@@ -86,11 +86,12 @@ while True:
             elif now_rsi < 62 and higher65[i] == True:
                 sell(coins[i])
                 higher65[i] = False
-
-        if avg_buy_price / cur_price > 1.01:
-            sell(coins[i])
+        
+        if avg_buy_price > 0:
+            if avg_buy_price / cur_price > 1.01:
+                sell(coins[i])
             
-        elif avg_buy_price / cur_price < 0.9975:
-            sell(coins[i])
+            elif avg_buy_price / cur_price < 0.9975:
+                sell(coins[i])
 
     time.sleep(0.5)
