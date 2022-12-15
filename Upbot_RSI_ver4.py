@@ -33,7 +33,7 @@ def buy(coin):
     coin_bought = upbit.get_balances()
     if krw > 5000:
         if coin_bought[len(coin_bought) - 1]['currency'] != coin[-3:]:
-            upbit.buy_market_order(coin, krw * 0.9995 / (len(coins) + 1 - coin_bought))
+            upbit.buy_market_order(coin, krw * 0.9995 / (len(coins) + 1 - len(coin_bought)))
     return
 
 def sell(coin):
