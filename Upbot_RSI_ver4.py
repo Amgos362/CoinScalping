@@ -88,13 +88,13 @@ while True:
                 higher65[i] = False
 
         if avg_buy_price > 0:
-            if avg_buy_price / cur_price > 1.008:
+            if avg_buy_price / cur_price > 1.015:
                 sell(coins[i])
 
-            elif upbit.get_avg_buy_price(coins[0]) / pyupbit.get_current_price(coins[0]) < 0.9965:
-                sell(coins[0])
+        if upbit.get_avg_buy_price(coins[0]) / pyupbit.get_current_price(coins[0]) < 0.9965:
+            sell(coins[0])
 
-            elif upbit.get_avg_buy_price(coins[1]) / pyupbit.get_current_price(coins[1]) < 0.995:
-                sell(coins[1])
+        if upbit.get_avg_buy_price(coins[1]) / pyupbit.get_current_price(coins[1]) < 0.995:
+            sell(coins[1])
 
     time.sleep(0.5)
