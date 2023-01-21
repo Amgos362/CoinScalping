@@ -6,11 +6,9 @@ access = "access"
 secret = "secret"
 coins = ["KRW-ETH", "KRW-ETC"]
 lower30 = []
-higher65 = []
 
 for i in range(len(coins)):
     lower30.append(False)
-    higher65.append(False)
 
 upbit = pyupbit.Upbit(access, secret) # 로그인
 print("scalping start")
@@ -69,11 +67,6 @@ while True:
             elif now_rsi > 33 and lower30[i] == True:
                 buy(coins[i])
                 lower30[i] = False
-            elif now_rsi > 69:
-                higher65[i] = True
-            elif now_rsi < 64 and higher65[i] == True:
-                sell(coins[i])
-                higher65[i] = False
 
         else:
             if now_rsi < 26:
@@ -81,20 +74,12 @@ while True:
             elif now_rsi > 31 and lower30[i] == True:
                 buy(coins[i])
                 lower30[i] = False
-            elif now_rsi > 67:
-                higher65[i] = True
-            elif now_rsi < 62 and higher65[i] == True:
-                sell(coins[i])
-                higher65[i] = False
 
         if avg_buy_price > 0:
-            if avg_buy_price / cur_price > 1.015:
+            if avg_buy_price / cur_price > 1.04:
                 sell(coins[i])
 
-        if upbit.get_avg_buy_price(coins[0]) / pyupbit.get_current_price(coins[0]) < 0.9965:
-            sell(coins[0])
-
-        if upbit.get_avg_buy_price(coins[1]) / pyupbit.get_current_price(coins[1]) < 0.995:
-            sell(coins[1])
+            if avg_buy_price / cur_price < 0.9965:
+                sell(coins[i])
 
     time.sleep(0.5)
