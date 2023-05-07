@@ -73,7 +73,7 @@ while True:
                 lower30[i] = False
             elif now_rsi > 67:
                 higher65[i] = True
-            elif now_rsi < 58 and higher65[i] == True:
+            elif now_rsi < 60 and higher65[i] == True:
                 sell(coins[i])
                 higher65[i] = False
 
