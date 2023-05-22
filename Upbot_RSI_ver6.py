@@ -76,5 +76,12 @@ while True:
             elif now_rsi < 60 and higher65[i] == True:
                 sell(coins[i])
                 higher65[i] = False
+                
+        else:
+            if now_rsi > 65:
+                higher65[i] = True
+            elif now_rsi < 59 and higher65[i] == True:
+                sell(coins[i])
+                higher65[i] = False
 
         time.sleep(0.5)
