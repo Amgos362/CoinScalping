@@ -4,8 +4,8 @@ import pyupbit
 access = "access"
 secret = "secret"
 coin = "KRW-ETH"
-buy_signal = False
-sell_signal = False
+# buy_signal = False
+# sell_signal = False
 
 upbit = pyupbit.Upbit(access, secret) # 로그인
 print("Trading start")
@@ -31,19 +31,30 @@ def sell(coin):
     return
 
 while True:
-    df = pyupbit.get_ohlcv(ticker=coin, interval="minute60", count=100) 
+    df = pyupbit.get_ohlcv(ticker=coin, interval="minute240", count=100)
     now_indicator = calculate_indicator(df)
 
-    if now_indicator < 10:  
-        buy_signal = True
-    elif now_indicator > 10 and buy_signal:  # if not bought and buy_signal is true
+    if now_indicator <= 5:  # indicator가 10 이하일 때 매수
         buy(coin)
-        buy_signal = False
-
-    if now_indicator > 90:  
-        sell_signal = True
-    elif now_indicator < 90 and sell_signal:  # if bought and sell_signal is true
+    elif now_indicator >= 95:  # indicator가 90 이상일 때 매도
         sell(coin)
-        sell_signal = False
 
     time.sleep(0.5)
+
+# while True:
+#     df = pyupbit.get_ohlcv(ticker=coin, interval="minute60", count=100) 
+#     now_indicator = calculate_indicator(df)
+
+#     if now_indicator < 10:  
+#         buy_signal = True
+#     elif now_indicator > 10 and buy_signal:  # if not bought and buy_signal is true
+#         buy(coin)
+#         buy_signal = False
+
+#     if now_indicator > 90:  
+#         sell_signal = True
+#     elif now_indicator < 90 and sell_signal:  # if bought and sell_signal is true
+#         sell(coin)
+#         sell_signal = False
+
+#     time.sleep(0.5)
