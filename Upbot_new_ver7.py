@@ -34,9 +34,9 @@ while True:
     df = pyupbit.get_ohlcv(ticker=coin, interval="minute240", count=100)
     now_indicator = calculate_indicator(df)
 
-    if now_indicator <= 5:  # indicator가 10 이하일 때 매수
+    if now_indicator <= 10:  # indicator가 10 이하일 때 매수
         buy(coin)
-    elif now_indicator >= 95:  # indicator가 90 이상일 때 매도
+    elif now_indicator >= 90:  # indicator가 90 이상일 때 매도
         sell(coin)
 
     time.sleep(0.5)
