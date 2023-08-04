@@ -65,18 +65,27 @@ def send_message(message, token=None):
     except Exception as e:
         raise Exception(e)
 
+buy_flag = [False] * len(coins)  # 각 코인별로 매수 플래그
+sell_flag = [False] * len(coins)  # 각 코인별로 매도 플래그
 
 while True:
     for i, coin in enumerate(coins):
         df = pyupbit.get_ohlcv(ticker=coin, interval=intervals[i])
         now_indicator = calculate_indicator(df)
 
-        if now_indicator <= 10:  # indicator가 10 이하일 때 매수
+        if now_indicator <= 10 and not buy_flag[i]:  # indicator가 10 이하일 때 매수
             portion = 1/3 if coin == "KRW-BTC" else 2/3
             buy(coin, portion)
-
-        elif now_indicator >= 90:  # indicator가 90 이상일 때 매도
+            buy_flag[i] = True  # 매수 플래그 설정
+        elif now_indicator >= 90 and not sell_flag[i]:  # indicator가 90 이상일 때 매도
             sell(coin)
+            sell_flag[i] = True  # 매도 플래그 설정
+
+        # 조건을 리셋하고 싶은 경우 (예: 매수 후 다시 매도하고 싶다면)
+        if now_indicator > 10 and buy_flag[i]:
+            buy_flag[i] = False
+        if now_indicator < 90 and sell_flag[i]:
+            sell_flag[i] = False
 
         time.sleep(0.5)
 
