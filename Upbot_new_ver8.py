@@ -36,7 +36,10 @@ def sell(coin):
     upbit.sell_market_order(coin, coin_amount_before)
     krw_after = upbit.get_balance("KRW")
     profit_loss = krw_after - coin_value_before
-    profit_loss_percent = (profit_loss / coin_value_before) * 100
+    if coin_value_before == 0:
+        profit_loss_percent = 0  # 또는 적절한 다른 값을 할당
+    else:
+        profit_loss_percent = (profit_loss / coin_value_before) * 100
     sell_message = f"Sold {coin}: {coin_amount_before} amount, Profit/Loss: {profit_loss} KRW ({profit_loss_percent}%)"
     send_message(sell_message, MESSAGE_TOKEN) # 이 부분 추가
     return
