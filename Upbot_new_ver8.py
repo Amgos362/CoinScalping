@@ -78,6 +78,10 @@ sell_flag = [False] * len(coins)  # 각 코인별로 매도 플래그
 while True:
     for i, coin in enumerate(coins):
         df = pyupbit.get_ohlcv(ticker=coin, interval=intervals[i])
+        if df is None:
+            print(f"Nonetype {coin} occurred")
+            time.sleep(1)
+            continue
         now_indicator = calculate_indicator(df)
 
 
