@@ -23,17 +23,17 @@ def calculate_indicator(df):
 
 avg_buy_price = {}
 
-def buy(coin, portion, vvs):
+def buy(coin, portion, vvr):
     krw = upbit.get_balance("KRW")
     if krw > 5000:
         upbit.buy_market_order(coin, krw * 0.9995 * portion)
         coin_amount = upbit.get_balance(coin[4:])
         avg_buy_price[coin] = pyupbit.get_current_price(coin)
-        buy_message = f"매수 {coin}: {coin_amount}개, 평단 {avg_buy_price[coin]}원, VVS = {vvs.round(1)}"
+        buy_message = f"매수 {coin}: {coin_amount}개, 평단 {avg_buy_price[coin]}원, VVR = {vvr.round(1)}"
         send_message(buy_message, MESSAGE_TOKEN) # 이 부분 추가
     return
 
-def sell(coin, vvs):
+def sell(coin, vvr):
     if coin not in avg_buy_price:
         return
     coin_amount_before = upbit.get_balance(coin[4:])
@@ -45,7 +45,7 @@ def sell(coin, vvs):
         profit_loss_percent = 0  # 또는 적절한 다른 값을 할당
     else:
         profit_loss_percent = (profit_loss / coin_value_before) * 100
-    sell_message = f"매도 {coin}: {coin_amount_before}개, 손익금 {profit_loss}원 ({profit_loss_percent}%), VVS = {vvs.round(1)}"
+    sell_message = f"매도 {coin}: {coin_amount_before}개, 손익금 {profit_loss}원 ({profit_loss_percent}%), VVR = {vvr.round(1)}"
     send_message(sell_message, MESSAGE_TOKEN) # 이 부분 추가
     if coin in avg_buy_price:
         del avg_buy_price[coin]
