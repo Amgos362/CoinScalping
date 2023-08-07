@@ -26,11 +26,18 @@ avg_buy_price = {}
 def buy(coin, portion, vvr):
     krw = upbit.get_balance("KRW")
     if krw > 5000:
-        upbit.buy_market_order(coin, krw * 0.9995 * portion)
-        coin_amount = upbit.get_balance(coin[4:])
-        avg_buy_price[coin] = pyupbit.get_current_price(coin)
-        buy_message = f"매수 {coin}: {coin_amount}개, 평단 {avg_buy_price[coin]}원, VVR = {vvr.round(1)}"
-        send_message(buy_message, MESSAGE_TOKEN) # 이 부분 추가
+        if len(avg_buy_price) == 0:
+            upbit.buy_market_order(coin, krw * 0.9995 * portion)
+            coin_amount = upbit.get_balance(coin[4:])
+            avg_buy_price[coin] = pyupbit.get_current_price(coin)
+            buy_message = f"매수 {coin}: {coin_amount}개, 평단 {avg_buy_price[coin]}원, VVR = {vvr.round(1)}"
+            send_message(buy_message, MESSAGE_TOKEN) # 이 부분 추가
+        else:
+            upbit.buy_market_order(coin, krw * 0.9995)
+            coin_amount = upbit.get_balance(coin[4:])
+            avg_buy_price[coin] = pyupbit.get_current_price(coin)
+            buy_message = f"매수 {coin}: {coin_amount}개, 평단 {avg_buy_price[coin]}원, VVR = {vvr.round(1)}"
+            send_message(buy_message, MESSAGE_TOKEN)  # 이 부분 추가
     return
 
 def sell(coin, vvr):
