@@ -71,7 +71,7 @@ def show_indicator():
     plt.close()  # 창을 닫지 않으면 리소스가 소비될 수 있음
     return image_paths
 
-def send_image(image_path, token=None):
+def send_image(image_path, coin, token=None):
     """LINE Notify를 사용한 이미지 전송"""
     try:
         with open(image_path, 'rb') as image_file:
@@ -84,7 +84,7 @@ def send_image(image_path, token=None):
                     'imageFile': image_file
                 },
                 data={
-                    'message': 'Graph'
+                    'message': f'{coin}Graph'
                 }
             )
         status = response.json()['status']
@@ -105,7 +105,7 @@ while True:
         if last_sent_time is None or (now - last_sent_time).total_seconds() >= 4 * 60 * 60:
             image_paths = show_indicator()
             for image_path in image_paths:
-                send_image(image_path, MESSAGE_TOKEN)
+                send_image(image_path, coin, MESSAGE_TOKEN)
 
             last_sent_time = now
 
