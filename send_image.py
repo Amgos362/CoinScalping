@@ -3,15 +3,22 @@ import pyupbit
 import requests
 import matplotlib.pyplot as plt
 from datetime import datetime
+import os
 
 TARGET_URL = 'url'
 MESSAGE_TOKEN = "token"
+
+coins = ["KRW-BTC", "KRW-ETH"]
+intervals = ["minute60", "minute240"]
 
 def show_indicator():
     image_paths = []
     coins = ["KRW-BTC", "KRW-ETH"]
     intervals = ["minute60", "minute240"]
     for i in range(len(coins)):
+
+        output_dir = "/home/ubuntu/graphs/"
+        os.makedirs(output_dir, exist_ok=True)  # 디렉토리가 없으면 생성
 
         df = pyupbit.get_ohlcv(ticker=coins[i], interval=intervals[i], count=1000)
 
@@ -41,13 +48,13 @@ def show_indicator():
 
         red_marker = False
         blue_marker = False
-        for i in range(len(df.index) - 1):
-            if df['indicator'][i] > 10 and df['indicator'][i + 1] < 10 and red_marker == False:
-                ax2.plot(df.index[i + 1], df['close'][i + 1], 'r^')
+        for index in range(len(df.index) - 1):
+            if df['indicator'][index] > 10 and df['indicator'][index + 1] < 10 and red_marker == False:
+                ax2.plot(df.index[index + 1], df['close'][index + 1], 'r^')
                 red_marker = True
                 blue_marker = False
-            if df['indicator'][i] < 90 and df['indicator'][i + 1] > 90 and blue_marker == False:
-                ax2.plot(df.index[i + 1], df['close'][i + 1], 'bv')
+            if df['indicator'][index] < 90 and df['indicator'][index + 1] > 90 and blue_marker == False:
+                ax2.plot(df.index[index + 1], df['close'][index + 1], 'bv')
                 blue_marker = True
                 red_marker = False
 
@@ -56,7 +63,8 @@ def show_indicator():
         fig.tight_layout()  # 그래프의 레이아웃을 조정
         VVR = df['indicator'][-1].round(1)
         ax1.text(df.index[-1], df['indicator'][-1] * 10000, f"VVR = {VVR}", color='blue')
-        image_path = f"{coins[i]}_{datetime.now().strftime('%Y%m%d%H%M%S')}.png"
+
+        image_path = f"{output_dir}{coins[i]}_{datetime.now().strftime('%Y%m%d%H%M%S')}.png"
         plt.savefig(image_path)
         image_paths.append(image_path)
 
@@ -94,7 +102,7 @@ while True:
     for i, coin in enumerate(coins):
 
         now = datetime.now()
-        if last_sent_time is None or (now - last_sent_time).total_seconds() >= 6 * 60 * 60:
+        if last_sent_time is None or (now - last_sent_time).total_seconds() >= 4 * 60 * 60:
             image_paths = show_indicator()
             for image_path in image_paths:
                 send_image(image_path, MESSAGE_TOKEN)
