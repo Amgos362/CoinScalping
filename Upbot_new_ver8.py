@@ -21,7 +21,20 @@ def calculate_indicator(df):
     df['indicator'] = df['indicator'].rolling(window=10).mean()
     return df['indicator'].iloc[-1]  # return the latest indicator
 
-avg_buy_price = {}
+def get_current_holdings():
+    balances = upbit.get_balances()
+    holdings = {}
+    for balance in balances:
+        currency = balance['currency']
+        coin = f"KRW-{currency}"
+        price = pyupbit.get_current_price(coin)
+        amount = float(balance['balance'])
+        holdings[coin] = price * amount
+    return holdings
+
+# 프로그램 시작 시 현재 보유한 코인 종류 및 평균 구매 가격 가져오기
+avg_buy_price = get_current_holdings()
+
 
 def buy(coin, portion, vvr):
     krw = upbit.get_balance("KRW")
