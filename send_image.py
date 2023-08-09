@@ -20,7 +20,7 @@ def show_indicator():
         output_dir = "/home/ubuntu/graphs/"
         os.makedirs(output_dir, exist_ok=True)  # 디렉토리가 없으면 생성
 
-        df = pyupbit.get_ohlcv(ticker=coins[i], interval=intervals[i], count=1000)
+        df = pyupbit.get_ohlcv(ticker=coins[i], interval=intervals[i], count=500)
 
         df['original'] = (((df['high'] - df['low']) / df['volume']) / df['close']).rolling(window=10).mean()
         low = df['original'].rolling(window=20).min()
@@ -64,7 +64,7 @@ def show_indicator():
         VVR = df['indicator'][-1].round(1)
         ax1.text(df.index[-1], df['indicator'][-1] * 10000, f"VVR = {VVR}", color='blue')
 
-        image_path = f"{coins[i]}_{datetime.now().strftime('%Y%m%d%H%M%S')}.png"
+        image_path = f"{output_dir}{coins[i]}_{datetime.now().strftime('%Y%m%d%H%M%S')}.png"
         plt.savefig(image_path)
         image_paths_with_coin.append((image_path, coins[i]))
 
@@ -104,6 +104,7 @@ while True:
         image_paths_with_coin = show_indicator()
         for image_path, coin in image_paths_with_coin:
             send_image(image_path, coin, MESSAGE_TOKEN)
+            os.remove(image_path)
 
         last_sent_time = now
 
