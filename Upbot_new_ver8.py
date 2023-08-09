@@ -40,19 +40,30 @@ num = len(balance)
 
 def buy(coin, portion, vvr):
     krw = upbit.get_balance("KRW")
-    if krw > 5000:
-        if num == 0:
-            upbit.buy_market_order(coin, krw * 0.9995 * portion)
-            coin_amount = upbit.get_balance(coin[4:])
-            avg_buy_price[coin] = pyupbit.get_current_price(coin)
-            buy_message = f"매수 {coin}: {coin_amount}개, 평단 {avg_buy_price[coin]}원, VVR = {vvr.round(1)}"
-            send_message(buy_message, MESSAGE_TOKEN) # 이 부분 추가
-        else:
-            upbit.buy_market_order(coin, krw * 0.9995)
-            coin_amount = upbit.get_balance(coin[4:])
-            avg_buy_price[coin] = pyupbit.get_current_price(coin)
-            buy_message = f"매수 {coin}: {coin_amount}개, 평단 {avg_buy_price[coin]}원, VVR = {vvr.round(1)}"
-            send_message(buy_message, MESSAGE_TOKEN)  # 이 부분 추가
+    retry_count = 0
+
+    while krw is None and retry_count < 5:  # 최대 5번 재시도
+        print("Failed to fetch KRW balance, retrying...")
+        time.sleep(1)  # 재시도 전에 약간의 대기시간을 줍니다.
+        krw = upbit.get_balance("KRW")
+        retry_count += 1
+
+    if krw is None:
+        print("Failed to fetch KRW balance after retries, skipping this iteration.")
+    else:
+        if krw > 5000:
+            if num == 0:
+                upbit.buy_market_order(coin, krw * 0.9995 * portion)
+                coin_amount = upbit.get_balance(coin[4:])
+                avg_buy_price[coin] = pyupbit.get_current_price(coin)
+                buy_message = f"매수 {coin}: {coin_amount}개, 평단 {avg_buy_price[coin]}원, VVR = {vvr.round(1)}"
+                send_message(buy_message, MESSAGE_TOKEN) # 이 부분 추가
+            else:
+                upbit.buy_market_order(coin, krw * 0.9995)
+                coin_amount = upbit.get_balance(coin[4:])
+                avg_buy_price[coin] = pyupbit.get_current_price(coin)
+                buy_message = f"매수 {coin}: {coin_amount}개, 평단 {avg_buy_price[coin]}원, VVR = {vvr.round(1)}"
+                send_message(buy_message, MESSAGE_TOKEN)  # 이 부분 추가
     return
 
 def sell(coin, vvr):
