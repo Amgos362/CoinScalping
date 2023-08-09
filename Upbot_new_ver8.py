@@ -21,25 +21,27 @@ def calculate_indicator(df):
     df['indicator'] = df['indicator'].rolling(window=10).mean()
     return df['indicator'].iloc[-1]  # return the latest indicator
 
-def get_current_holdings():
-    balances = upbit.get_balances()
-    holdings = {}
-    for balance in balances:
-        currency = balance['currency']
-        coin = f"KRW-{currency}"
-        price = pyupbit.get_current_price(coin)
-        amount = float(balance['balance'])
-        holdings[coin] = price * amount
-    return holdings
+# def get_current_holdings():
+#     balances = upbit.get_balances()
+#     holdings = {}
+#     for balance in balances:
+#         currency = balance['currency']
+#         coin = f"KRW-{currency}"
+#         price = pyupbit.get_current_price(coin)
+#         amount = float(balance['balance'])
+#         holdings[coin] = price * amount
+#     return holdings
 
 # 프로그램 시작 시 현재 보유한 코인 종류 및 평균 구매 가격 가져오기
-avg_buy_price = get_current_holdings()
+avg_buy_price = {}
+balance = upbit.get_balances()
+num = len(balance)
 
 
 def buy(coin, portion, vvr):
     krw = upbit.get_balance("KRW")
     if krw > 5000:
-        if len(avg_buy_price) == 0:
+        if num == 0:
             upbit.buy_market_order(coin, krw * 0.9995 * portion)
             coin_amount = upbit.get_balance(coin[4:])
             avg_buy_price[coin] = pyupbit.get_current_price(coin)
@@ -54,8 +56,10 @@ def buy(coin, portion, vvr):
     return
 
 def sell(coin, vvr):
-    if coin not in avg_buy_price:
+    if num == 0:
         return
+    if coin not in avg_buy_price:
+        avg_buy_price[coin] = pyupbit.get_current_price(coin)
     coin_amount_before = upbit.get_balance(coin[4:])
     coin_value_before = coin_amount_before * avg_buy_price.get(coin, 0)
     upbit.sell_market_order(coin, coin_amount_before)
