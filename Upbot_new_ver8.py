@@ -52,7 +52,7 @@ def buy(coin, portion, vvr):
         print("Failed to fetch KRW balance after retries, skipping this iteration.")
     else:
         if krw > 5000:
-            if num == 0:
+            if num == 1:
                 upbit.buy_market_order(coin, krw * 0.9995 * portion)
                 coin_amount = upbit.get_balance(coin[4:])
                 avg_buy_price[coin] = pyupbit.get_current_price(coin)
@@ -67,7 +67,7 @@ def buy(coin, portion, vvr):
     return
 
 def sell(coin, vvr):
-    if num == 0:
+    if num == 1:
         return
     if coin not in avg_buy_price:
         avg_buy_price[coin] = pyupbit.get_current_price(coin)
