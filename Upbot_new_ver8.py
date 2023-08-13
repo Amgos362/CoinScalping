@@ -21,94 +21,78 @@ def calculate_indicator(df):
     df['indicator'] = df['indicator'].rolling(window=10).mean()
     return df['indicator'].iloc[-1]  # return the latest indicator
 
-# def get_current_holdings():
-#     balances = upbit.get_balances()
-#     holdings = {}
-#     for balance in balances:
-#         currency = balance['currency']
-#         coin = f"KRW-{currency}"
-#         price = pyupbit.get_current_price(coin)
-#         amount = float(balance['balance'])
-#         holdings[coin] = price * amount
-#     return holdings
-
-# 프로그램 시작 시 현재 보유한 코인 종류 및 평균 구매 가격 가져오기
 avg_buy_price = {}
-balance = upbit.get_balances()
-num = len(balance)
+balances = upbit.get_balances()
+if not balances:
+    print("Failed to fetch initial balances.")
 
+for balance in balances:
+    currency = balance['currency']
+    coin_name = f"KRW-{currency}"
+
+    if coin_name in coins:
+        avg_buy_price[coin_name] = pyupbit.get_current_price(coin_name)
+        if avg_buy_price[coin_name] is None:
+            print(f"Failed to fetch price for {coin_name}")
 
 def buy(coin, portion, vvr):
     krw = upbit.get_balance("KRW")
     retry_count = 0
 
-    while krw is None and retry_count < 5:  # 최대 5번 재시도
+    while krw is None and retry_count < 5:
         print("Failed to fetch KRW balance, retrying...")
-        time.sleep(1)  # 재시도 전에 약간의 대기시간을 줍니다.
+        time.sleep(1)
         krw = upbit.get_balance("KRW")
         retry_count += 1
 
     if krw is None:
-        print("Failed to fetch KRW balance after retries, skipping this iteration.")
+        print("Failed to fetch KRW balance after retries.")
     else:
         if krw > 5000:
-            if num == 1:
-                upbit.buy_market_order(coin, krw * 0.9995 * portion)
-                coin_amount = upbit.get_balance(coin[4:])
-                avg_buy_price[coin] = pyupbit.get_current_price(coin)
-                buy_message = f"매수 {coin}: {coin_amount}개, 평단 {avg_buy_price[coin]}원, VVR = {vvr.round(1)}"
-                send_message(buy_message, MESSAGE_TOKEN) # 이 부분 추가
-            else:
-                upbit.buy_market_order(coin, krw * 0.9995)
-                coin_amount = upbit.get_balance(coin[4:])
-                avg_buy_price[coin] = pyupbit.get_current_price(coin)
-                buy_message = f"매수 {coin}: {coin_amount}개, 평단 {avg_buy_price[coin]}원, VVR = {vvr.round(1)}"
-                send_message(buy_message, MESSAGE_TOKEN)  # 이 부분 추가
-    return
+            upbit.buy_market_order(coin, krw * 0.9995 * (portion if portion else 1))
+            coin_amount = upbit.get_balance(coin[4:])
+            if coin_amount is None:
+                print(f"Failed to fetch balance for {coin}")
+                return
+            avg_buy_price[coin] = pyupbit.get_current_price(coin)
+            if avg_buy_price[coin] is None:
+                print(f"Failed to fetch price for {coin}")
+                return
+            buy_message = f"매수 {coin}: {coin_amount}개, 평단 {avg_buy_price[coin]}원, VVR = {vvr.round(1)}"
+            send_message(buy_message, MESSAGE_TOKEN)
 
 def sell(coin, vvr):
-    if num == 1:
-        return
-    if coin not in avg_buy_price:
-        avg_buy_price[coin] = pyupbit.get_current_price(coin)
     coin_amount_before = upbit.get_balance(coin[4:])
+    if coin_amount_before is None:
+        print(f"Failed to fetch balance for {coin}")
+        return
+
     coin_value_before = coin_amount_before * avg_buy_price.get(coin, 0)
     upbit.sell_market_order(coin, coin_amount_before)
     krw_after = upbit.get_balance("KRW")
+    if krw_after is None:
+        print("Failed to fetch KRW balance after selling.")
+        return
+
     profit_loss = krw_after - coin_value_before
-    if coin_value_before == 0:
-        profit_loss_percent = 0  # 또는 적절한 다른 값을 할당
-    else:
-        profit_loss_percent = (profit_loss / coin_value_before) * 100
+    profit_loss_percent = (profit_loss / coin_value_before) * 100 if coin_value_before != 0 else 0
     sell_message = f"매도 {coin}: {coin_amount_before}개, 손익금 {profit_loss}원 ({profit_loss_percent}%), VVR = {vvr.round(1)}"
-    send_message(sell_message, MESSAGE_TOKEN) # 이 부분 추가
+    send_message(sell_message, MESSAGE_TOKEN)
     if coin in avg_buy_price:
         del avg_buy_price[coin]
-    return
 
 def send_message(message, token=None):
-    """LINE Notify를 사용한 메세지 보내기"""
     try:
         response = requests.post(
             TARGET_URL,
-            headers={
-                'Authorization': 'Bearer ' + token
-            },
-            data={
-                'message': message
-            }
+            headers={'Authorization': 'Bearer ' + token},
+            data={'message': message}
         )
-        status = response.json()['status']
-        # 전송 실패 체크
-        if status != 200:
-            # 에러 발생 시에만 로깅
-            raise Exception('Fail need to check. Status is %s' % status)
-
+        response.raise_for_status()
+    except requests.HTTPError as http_err:
+        print(f"HTTP error occurred: {http_err}")
     except Exception as e:
-        raise Exception(e)
-
-buy_flag = [False] * len(coins)  # 각 코인별로 매수 플래그
-sell_flag = [False] * len(coins)  # 각 코인별로 매도 플래그
+        print(f"An error occurred when sending message: {e}")
 
 while True:
     for i, coin in enumerate(coins):
@@ -119,20 +103,10 @@ while True:
             continue
         now_indicator = calculate_indicator(df)
 
-
-        if now_indicator <= 10 and not buy_flag[i] and coin not in avg_buy_price:  # indicator가 10 이하일 때 매수
+        if now_indicator <= 10 and coin not in avg_buy_price:
             portion = 1/3 if coin == "KRW-BTC" else 2/3
             buy(coin, portion, now_indicator)
-            buy_flag[i] = True  # 매수 플래그 설정
-        elif now_indicator >= 90 and not sell_flag[i] and coin in avg_buy_price:  # indicator가 90 이상일 때 매도
+        elif now_indicator >= 90 and coin in avg_buy_price:
             sell(coin, now_indicator)
-            sell_flag[i] = True  # 매도 플래그 설정
-
-        # 조건을 리셋하고 싶은 경우 (예: 매수 후 다시 매도하고 싶다면)
-        if now_indicator > 10 and buy_flag[i]:
-            buy_flag[i] = False
-        if now_indicator < 90 and sell_flag[i]:
-            sell_flag[i] = False
 
         time.sleep(0.5)
-
