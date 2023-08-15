@@ -1,5 +1,6 @@
 import os
 import requests
+import time
 
 # LINE 알림을 위한 함수
 def send_line_notification(message):
@@ -15,12 +16,13 @@ def send_line_notification(message):
 # 모니터링 대상 프로세스 이름
 processes_to_monitor = ['Upbot_new_ver8.py', 'send_image.py']
 
-for process in processes_to_monitor:
-    try:
-        # 해당 프로세스 이름을 포함하는 프로세스 개수를 찾습니다.
-        query = os.popen(f'ps ax | grep {process} | grep -v grep').read()
-        if process not in query:
-            send_line_notification(f"{process} 꺼졌다 확인해봐라 마!")
-    except Exception as e:
-        send_line_notification(f"Error while monitoring {process}: {str(e)}")
-
+while True:  # 무한 루프 시작
+    for process in processes_to_monitor:
+        try:
+            # 해당 프로세스 이름을 포함하는 프로세스 개수를 찾습니다.
+            query = os.popen(f'ps ax | grep {process} | grep -v grep').read()
+            if process not in query:
+                send_line_notification(f"{process} 꺼졌다 확인해봐라 마!")
+        except Exception as e:
+            send_line_notification(f"Error while monitoring {process}: {str(e)}")
+    time.sleep(3600)  # 60분 대기
