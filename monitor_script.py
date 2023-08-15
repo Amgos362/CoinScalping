@@ -14,7 +14,7 @@ def send_line_notification(message):
     response = requests.post(TARGET_URL, headers=headers, data=data)
 
 # 모니터링 대상 프로세스 이름
-processes_to_monitor = ['Upbot_new_ver8.py', 'send_vvr.py']
+processes_to_monitor = ['Upbot_new_ver9.py', 'send_vvr.py']
 
 while True:  # 무한 루프 시작
     for process in processes_to_monitor:
