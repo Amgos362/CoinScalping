@@ -4,9 +4,13 @@ import requests
 import matplotlib.pyplot as plt
 from datetime import datetime
 import os
+import logging
 
 TARGET_URL = 'url'
 MESSAGE_TOKEN = "token"
+
+logging.basicConfig(filename='/CoinScalping/send_image.log', level=logging.INFO,
+                    format='%(asctime)s [%(levelname)s] - %(message)s')
 
 coins = ["KRW-BTC", "KRW-ETH"]
 intervals = ["minute60", "minute240"]
@@ -67,8 +71,8 @@ def show_indicator():
         image_path = f"{output_dir}{coins[i]}_{datetime.now().strftime('%Y%m%d%H%M%S')}.png"
         plt.savefig(image_path)
         image_paths_with_coin.append((image_path, coins[i]))
-
-    plt.close()  # 창을 닫지 않으면 리소스가 소비될 수 있음
+        plt.close()
+      # 창을 닫지 않으면 리소스가 소비될 수 있음
     return image_paths_with_coin
 
 def send_image(image_path, coin, token=None):
@@ -99,15 +103,18 @@ def send_image(image_path, coin, token=None):
 last_sent_time = None
 
 while True:
-    now = datetime.now()
-    if last_sent_time is None or (now - last_sent_time).total_seconds() >= 4 * 60 * 60:
-        image_paths_with_coin = show_indicator()
-        for image_path, coin in image_paths_with_coin:
-            send_image(image_path, coin, MESSAGE_TOKEN)
-            os.remove(image_path)
+    try:
+        now = datetime.now()
+        if last_sent_time is None or (now - last_sent_time).total_seconds() >= 4 * 60 * 60:
+            image_paths_with_coin = show_indicator()
+            for image_path, coin in image_paths_with_coin:
+                send_image(image_path, coin, MESSAGE_TOKEN)
+                os.remove(image_path)
 
-        last_sent_time = now
+            last_sent_time = now
 
-    time.sleep(1)
+        time.sleep(1)
+    except Exception as e:
+        logging.error(f"Error occurred: {e}")
 
 
