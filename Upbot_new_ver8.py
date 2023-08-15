@@ -104,7 +104,8 @@ while True:
         now_indicator = calculate_indicator(df)
 
         if now_indicator <= 10 and coin not in avg_buy_price:
-            portion = 1/3 if coin == "KRW-BTC" else 2/3
+            # portion = 1/3 if coin == "KRW-BTC" else 2/3
+            portion = 0.5
             buy(coin, portion, now_indicator)
         elif now_indicator >= 90 and coin in avg_buy_price:
             sell(coin, now_indicator)
