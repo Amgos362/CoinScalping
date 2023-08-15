@@ -9,8 +9,12 @@ import logging
 TARGET_URL = 'url'
 MESSAGE_TOKEN = "token"
 
-logging.basicConfig(filename='/CoinScalping/send_image.log', level=logging.INFO,
+log_directory = "/home/ubuntu/logs/"
+os.makedirs(log_directory, exist_ok=True)
+
+logging.basicConfig(filename=os.path.join(log_directory, 'send_image.log'), level=logging.INFO,
                     format='%(asctime)s [%(levelname)s] - %(message)s')
+
 
 coins = ["KRW-BTC", "KRW-ETH"]
 intervals = ["minute60", "minute240"]
