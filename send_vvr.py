@@ -29,8 +29,10 @@ def calculate_vvr(coin, interval):
         df['indicator'] = df['indicator'].rolling(window=10).mean()
 
         df = df.dropna()
+        vvr = df['indicator'][-1]
+        vvr = vvr.round(1)
 
-        return df['indicator'][-1]
+        return vvr
     except Exception as e:
         send_line_notification(f"Error calculating VVR for {coin} on {interval}: {str(e)}")
         return None
