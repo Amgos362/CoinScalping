@@ -37,9 +37,8 @@ def calculate_vvr(coin, interval):
 
 
 while True:
-    for coin in coins:
-        for interval in intervals:
-            vvr = calculate_vvr(coin, interval)
+    for i, coin in enumerate(coins):
+            vvr = calculate_vvr(coin, intervals[i])
             if vvr is not None:
                 send_line_notification(f"VVR for {coin} : {vvr}")
     time.sleep(3600)  # 1시간마다 반복
