@@ -14,7 +14,7 @@ def send_line_notification(message):
     response = requests.post(TARGET_URL, headers=headers, data=data)
 
 # 모니터링 대상 프로세스 이름
-processes_to_monitor = ['Upbot_new_ver8.py', 'send_image.py']
+processes_to_monitor = ['Upbot_new_ver8.py', 'send_vvr.py']
 
 while True:  # 무한 루프 시작
     for process in processes_to_monitor:
@@ -25,4 +25,4 @@ while True:  # 무한 루프 시작
                 send_line_notification(f"{process} 꺼졌다 확인해봐라 마!")
         except Exception as e:
             send_line_notification(f"Error while monitoring {process}: {str(e)}")
-    time.sleep(3600)  # 60분 대기
+    time.sleep(300)  # 60분 대기
