@@ -81,10 +81,10 @@ def sell(coin, vvr):
         print("Failed to fetch KRW balance after selling.")
         return
 
-    profit_loss = krw_after - coin_value_before
+    profit_loss = krw_after - coin_value_before * 2
     profit_loss_percent = (profit_loss / coin_value_before) * 100 if coin_value_before != 0 else 0
     sell_message = f"매도 {coin}: {coin_amount_before}개, 손익금 {profit_loss}원 ({profit_loss_percent}%), VVR = {vvr.round(1)}"
-    send_message(sell_message, MESSAGE_TOKEN)
+    send_message(sell_message, MESSAGE_TOKEN) 
     if coin in avg_buy_price:
         del avg_buy_price[coin]
 
