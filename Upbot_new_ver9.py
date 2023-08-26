@@ -2,7 +2,7 @@ import time
 import pyupbit
 import requests
 
-TARGET_URL = 'url'
+TARGET_URL = 'https://notify-api.line.me/api/notify'
 access = "access"
 secret = "secret"
 MESSAGE_TOKEN = "token"
