@@ -83,10 +83,16 @@ def sell(coin, vvr):
 
     if not avg_buy_price:
         profit_loss = krw_after - coin_value_before * 2
+        total_balance = upbit.get_balance("KRW")
     else:
         profit_loss = krw_after - coin_value_before
+        coin_balance = 0
+        for coin_key in avg_buy_price.keys():
+            coin_balance += upbit.get_balance(coin_key[4:]) * pyupbit.get_current_price(coin_key)
+        total_balance = upbit.get_balance("KRW") + coin_balance
     profit_loss_percent = (profit_loss / coin_value_before) * 100 if coin_value_before != 0 else 0
-    sell_message = f"매도 {coin}: {coin_amount_before}개, 손익금 {profit_loss}원 ({profit_loss_percent}%), VVR = {vvr.round(1)}"
+
+    sell_message = f"매도 {coin}: {coin_amount_before}개, 손익금 {profit_loss}원 ({profit_loss_percent}%), VVR = {vvr.round(1)}, 전체평가금액 = {total_balance}"
     send_message(sell_message, MESSAGE_TOKEN)
     if coin in avg_buy_price:
         del avg_buy_price[coin]
