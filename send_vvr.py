@@ -5,8 +5,8 @@ import requests
 TARGET_URL = 'https://notify-api.line.me/api/notify'
 TOKEN = "token"  # TOKEN 값을 여기에 넣으세요.
 
-coins = ["KRW-BTC", "KRW-ETH"]
-intervals = ["minute60", "minute240"]
+coins = ["KRW-CHZ", "KRW-KNC", "KRW-GRS", "KRW-HIVE"]
+intervals = ["minute60", "minute60", "minute240", "minute240"]
 
 
 def send_line_notification(message):
